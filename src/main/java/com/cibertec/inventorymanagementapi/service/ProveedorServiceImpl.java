@@ -7,6 +7,7 @@ import com.cibertec.inventorymanagementapi.mappers.ProveedorMapper;
 import com.cibertec.inventorymanagementapi.model.Proveedor;
 import com.cibertec.inventorymanagementapi.repository.ProveedorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,6 +16,12 @@ import java.util.Optional;
 
 @Service
 public class ProveedorServiceImpl implements ProveedorService {
+
+    @Value("${constantes.ESTADO_ACTIVO}")
+    private String estadoActivo;
+
+    @Value("${constantes.ESTADO_INACTIVO}")
+    private String estadoEliminado;
 
     @Autowired
     private ProveedorRepository proveedorRepository;
@@ -34,7 +41,7 @@ public class ProveedorServiceImpl implements ProveedorService {
     @Override
     public ProveedorDTO registrarProveedor(ProveedorCreateDTO proveedorCreateDTO) {
         Proveedor proveedor = ProveedorMapper.INSTANCIA.proveedorCreateDTOAProveedor(proveedorCreateDTO);
-        proveedor.setEstado("Activo");// Asignar el estado activo al proveedor antes de guardarlo
+        proveedor.setEstado(estadoActivo);// Asignar el estado activo al proveedor antes de guardarlo
         Proveedor proveedorGuardado = proveedorRepository.save(proveedor);
         return ProveedorMapper.INSTANCIA.proveedorAProveedorDTO(proveedorGuardado);
     }
@@ -51,7 +58,7 @@ public class ProveedorServiceImpl implements ProveedorService {
         Optional<Proveedor> proveedorOptional = proveedorRepository.findById(id);
         if (proveedorOptional.isPresent()) {
             Proveedor proveedor = proveedorOptional.get();
-            proveedor.setEstado("Eliminado");
+            proveedor.setEstado(estadoEliminado);
             proveedorRepository.save(proveedor);
             ProveedorDTO proveedorDTO = ProveedorMapper.INSTANCIA.proveedorAProveedorDTO(proveedor);
             return proveedorDTO;
